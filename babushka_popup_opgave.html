@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="da">
+<html lang="da">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babushka Opgave</title>
+    <link rel="stylesheet" href="">
+    <link href="https://fonts.googleapis.com/css?family=Galada&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: burlywood;
+        }
+
+        header {
+            background-color: burlywood;
+            height: 10vh;
+            width: 100vw;
+            margin: 0;
+            background: rgba(255, 255, 255, .5);
+
+        }
+
+        #header_background h2 {
+            text-align: center;
+            font-family: 'Galada', cursive;
+            font-size: 2.5rem;
+            color: whitesmoke;
+            padding: 38px;
+        }
+
+
+
+        footer {
+            background: rgba(255, 255, 255, .5);
+            height: 10vh;
+            width: 100vw;
+            margin: 0;
+        }
+
+        .datacontainer {
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 10px;
+            max-width: 1200px;
+        }
+
+        #popup_vindue {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, .5);
+
+            display: none;
+            overflow: scroll;
+        }
+
+        #popup_vindue .luk {
+            position: fixed;
+            top: 0;
+            right: 20px;
+            font-size: 4rem;
+            background: rgba(255, 255, 255, .5);
+            color: burlywood;
+        }
+
+        .popup {
+            width: 60vw;
+
+            margin: 4rem auto;
+            padding: 4rem;
+            background: burlywood;
+            overflow: scroll;
+
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+
+        }
+
+        button {
+
+            display: flex;
+            padding: 5px;
+            font-size: 1.8rem;
+            color: whitesmoke;
+            border: none;
+            background-color: burlywood;
+            cursor: pointer;
+            font-family: 'Galada', cursive;
+
+
+        }
+
+        button:hover {
+            transition: .2s;
+            border-top: solid 3px whitesmoke;
+        }
+
+        .valgt {
+            border-top: solid 3px rgba(255, 255, 255, .5);
+        }
+
+        #popup_vindue h1,
+        h1 {
+            text-align: center;
+            font-family: 'Galada', cursive;
+            font-size: 2.5rem;
+            color: whitesmoke;
+        }
+
+
+        h2,
+        h3,
+        h4,
+        p {
+            font-family: 'Oswald', sans-serif;
+            color: whitesmoke;
+            line-height: 0.5rem;
+        }
+
+
+        #popup_vindue h2,
+        #popup_vindue h3,
+        #popup_vindue h4,
+        #popup_vindue p {
+            font-family: 'Oswald', sans-serif;
+            color: whitesmoke;
+            line-height: 1rem;
+        }
+
+    </style>
+</head>
+<header>
+    <div id="header_background">
+        <h2>Bistro Babushka</h2>
+    </div>
+</header>
+
+<body>
+    <h1>Alle</h1>
+    <nav>
+        <button class="filter" data-kategori="alle">Alle</button>
+        <button class="filter" data-kategori="forretter">Forretter</button>
+        <button class="filter" data-kategori="hovedretter">Hovedretter</button>
+        <button class="filter" data-kategori="desserter">Desserter</button>
+        <button class="filter" data-kategori="drikkevarer">Drikkevarer</button>
+        <button class="filter" data-kategori="sideorders">Sideorders</button>
+    </nav>
+
+    <template>
+
+        <div class="retter">
+            <h1></h1>
+            <img src="" alt="">
+            <h2></h2>
+            <h3></h3>
+            <h4></h4>
+
+
+            <p class="oprindelse"></p>
+
+        </div>
+
+    </template>
+
+
+
+    <section class="datacontainer"></section>
+    <section id="popup_vindue">
+        <div class="popup">
+            <button class="luk">X</button>
+            <h1></h1>
+            <img src="" alt="">
+            <h2></h2>
+            <h3></h3>
+            <h4></h4>
+            <p class="oprindelse"></p>
+            <!--
+            <detail open>
+                <summary> Beskrivelse </summary>
+                <p databeskrivelse>Her står noget tekst</p>
+            </detail>
+-->
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", start);
+        const container = document.querySelector(".datacontainer");
+        const endpoint = "https://spreadsheets.google.com/feeds/list/17Dd7DvkPaFamNUdUKlrFgnH6POvBJXac7qyiS6zNRw0/od6/public/values?alt=json";
+        let retter = []
+        let filter = "alle";
+        //start
+        //hent data fra json
+        //funktion laves (visDyr)
+
+        function start() {
+            loadData();
+            clickButton();
+            //            document.querySelector("#popup_vindue").style.display = "none";
+
+
+        }
+        async function loadData() {
+            const response = await fetch(endpoint);
+            console.log(response);
+            retter = await response.json();
+            console.log(retter);
+            visRetter();
+        }
+
+
+
+        //for at finde variant af personer eks kvinde, mand, alder
+        //if (person.gsx$sex.$t == "k")
+
+        function visRetter() {
+
+            container.innerHTML = "";
+            const retterTemplate = document.querySelector("template");
+            retter.feed.entry.forEach(ret => {
+                if (filter == "alle" || filter == ret.gsx$kategori.$t) {
+                    let klon = retterTemplate.cloneNode(true).content;
+                    klon.querySelector("img").src = `imgs/small/${ret.gsx$billede.$t}-sm.jpg`;
+                    klon.querySelector("h1").textContent = ret.gsx$navn.$t;
+                    klon.querySelector("h2").textContent = ret.gsx$pris.$t + " Kr.";
+                    klon.querySelector("h3").textContent = ret.gsx$kategori.$t;
+
+                    klon.querySelector("h4").textContent = ret.gsx$kort.$t;
+                    klon.querySelector(".oprindelse").textContent = "Oprindelse: " + ret.gsx$oprindelse.$t
+                    //                    klon.querySelector(".retter").addEventListener("click", () => visDetaljer(ret));
+
+
+                    container.appendChild(klon);
+                    container.lastElementChild.addEventListener("click", () => {
+                        visDetalje(ret);
+                    })
+                }
+            })
+        }
+
+        function clickButton() {
+            //Tilføjer klik til alle classes ''filter''
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.addEventListener("click", filtering);
+            })
+
+        }
+        //funktion der skal vise detaljeret popupvindue med enkelt ret
+        function visDetalje(ret) {
+            //Sørger for at vise #popup_vindue, da det først var display.none
+            document.querySelector("#popup_vindue").style.display = "block";
+
+            //Tilføj klik til luk-knap i popupvindue
+            document.querySelector(".luk").addEventListener("click", luk_pop);
+            //Henter information fra json-fil (googlesheets)
+            document.querySelector("#popup_vindue img").src = `imgs/large/${ret.gsx$billede.$t}.jpg`
+            document.querySelector("#popup_vindue h1").textContent = ret.gsx$navn.$t;;
+            document.querySelector("#popup_vindue h2").textContent = ret.gsx$pris.$t + " Kr.";
+            document.querySelector("#popup_vindue h3").textContent = ret.gsx$kategori.$t;
+            document.querySelector("#popup_vindue h4").textContent = ret.gsx$lang.$t;
+            document.querySelector("#popup_vindue .oprindelse").textContent = "Oprindelse: " + ret.gsx$oprindelse.$t
+        }
+        //Luk popupvindue med enkelt ret
+        function luk_pop() {
+            document.querySelector("#popup_vindue").style.display = "none";
+            console.log(visRetter);
+        }
+
+        //Knapper til sortering
+        function filtering() {
+            //console logger dét der bliver trykket på af de varianter
+            console.log("this", this.dataset.kategori);
+            filter = this.dataset.kategori;
+            //Viser den knaps h1, der trykkes på
+            document.querySelector("h1").textContent = this.textContent;
+            //Vælger alle knapper og fjerner den røde markering ved klik
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.classList.remove("valgt");
+            })
+            //Tilføjer den røde markering ved klik til den, der bliver klikket på
+            this.classList.add("valgt");
+
+            visRetter();
+
+        }
+
+    </script>
+    <footer>
+        <div class="kontakt">
+
+        </div>
+    </footer>
+</body>
+
+</html>
