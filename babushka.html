@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babushka Opgave</title>
+    <link rel="stylesheet" href="">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .datacontainer {
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 10px;
+            max-width: 1200px;
+        }
+
+        .retter {
+            border: solid 1px black;
+            padding: 10px;
+
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        button {
+            display: flex;
+            padding: 5px;
+            font-size: 16px;
+            border: none;
+
+        }
+
+        .valgt {
+            background: pink;
+        }
+
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <template>
+
+        <div class="retter">
+            <h1></h1>
+            <h2></h2>
+            <h3></h3>
+            <h4></h4>
+            <img src="" alt="">
+
+            <p class="oprindelse"></p>
+
+        </div>
+
+    </template>
+
+    <h1>Alle</h1>
+    <nav>
+        <button class="filter" data-kategori="alle">Alle</button>
+        <button class="filter" data-kategori="forretter">Forretter</button>
+        <button class="filter" data-kategori="hovedretter">Hovedretter</button>
+        <button class="filter" data-kategori="desserter">Desserter</button>
+        <button class="filter" data-kategori="drikkevarer">Drikkevarer</button>
+        <button class="filter" data-kategori="sideorders">Sideorders</button>
+    </nav>
+
+    <section class="datacontainer"></section>
+    <script>
+        document.addEventListener("DOMContentLoaded", start);
+        const container = document.querySelector(".datacontainer");
+        const endpoint = "https://spreadsheets.google.com/feeds/list/17Dd7DvkPaFamNUdUKlrFgnH6POvBJXac7qyiS6zNRw0/od6/public/values?alt=json";
+        let retter = []
+        let filter = "alle";
+        //start
+        //hent data fra json
+        //funktion laves (visDyr)
+
+        function start() {
+            loadData();
+            clickButton();
+        }
+        async function loadData() {
+            const response = await fetch(endpoint);
+            console.log(response);
+            retter = await response.json();
+            console.log(retter);
+            visRetter();
+        }
+        //for at finde variant af personer eks kvinde, mand, alder
+        //if (person.gsx$sex.$t == "k")
+
+        function visRetter() {
+
+            container.innerHTML = "";
+            const retterTemplate = document.querySelector("template");
+            retter.feed.entry.forEach(ret => {
+                if (filter == "alle" || filter == ret.gsx$kategori.$t) {
+                    let klon = retterTemplate.cloneNode(true).content;
+
+                    klon.querySelector("h1").textContent = ret.gsx$navn.$t;
+                    klon.querySelector("h2").textContent = ret.gsx$kategori.$t;
+                    klon.querySelector("h3").textContent = ret.gsx$pris.$t + " Kr.";
+                    klon.querySelector("img").src = `imgs/small/${ret.gsx$billede.$t}-sm.jpg`;
+                    klon.querySelector("h4").textContent = ret.gsx$kort.$t;
+                    klon.querySelector(".oprindelse").textContent = "Oprindelse: " + ret.gsx$oprindelse.$t
+
+
+                    container.appendChild(klon);
+                }
+            })
+        }
+
+        console.log(visRetter);
+
+        function clickButton() {
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.addEventListener("click", filtering);
+            })
+        }
+
+        function filtering() {
+            console.log("this", this.dataset.kategori); //console logger dét der bliver trykket på af de varianter
+            filter = this.dataset.kategori;
+            document.querySelector("h1").textContent = this.textContent;
+
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.classList.remove("valgt");
+            })
+            this.classList.add("valgt");
+
+            visRetter();
+        }
+
+
+        //personer.forEach(person => {
+        //                person.gsx$navn.$t;
+        //                person.gsx$alder.$t;
+        //                person.gsx$alder.$t;
+        //                person.gsx$histore.$t;
+        //width 100% img
+
+        //        listevisning.innerHTML += `<p>${dyret.navn} ${dyret.type} ${dyret.levested} ${dyret.billede}</p>`;
+    </script>
+</body></html>
